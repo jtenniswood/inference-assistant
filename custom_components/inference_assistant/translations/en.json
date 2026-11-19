@@ -97,124 +97,124 @@
   "entity": {
     "sensor": {
       "active_requests": {
-        "name": "Active requests"
+        "name": "Requests (active)"
       },
       "queued_requests": {
-        "name": "Queued requests"
+        "name": "Requests (queued)"
       },
       "waiting_requests": {
-        "name": "Waiting requests"
+        "name": "Requests (waiting)"
       },
       "prefilling_requests": {
-        "name": "Prefilling requests"
+        "name": "Requests (prefilling)"
       },
       "decoding_requests": {
-        "name": "Decoding requests"
+        "name": "Requests (decoding)"
       },
       "submitted_requests": {
-        "name": "Submitted requests"
+        "name": "Requests (submitted)"
       },
       "completed_requests": {
-        "name": "Completed requests"
+        "name": "Requests (completed)"
       },
       "cancelled_requests": {
-        "name": "Cancelled requests"
+        "name": "Requests (cancelled)"
       },
       "failed_requests": {
-        "name": "Failed requests"
+        "name": "Requests (failed)"
       },
       "model": {
-        "name": "Model"
+        "name": "Models (loaded)"
       },
       "maximum_context_tokens": {
-        "name": "Maximum context tokens"
+        "name": "Context tokens (maximum)"
       },
       "memory_pressure": {
-        "name": "Memory pressure"
+        "name": "Memory (pressure)"
       },
       "thermal_state": {
         "name": "Thermal state"
       },
       "memory_current": {
-        "name": "Current memory"
+        "name": "Memory (current)"
       },
       "memory_allocated": {
-        "name": "Allocated memory"
+        "name": "Memory (allocated)"
       },
       "memory_peak": {
-        "name": "Peak memory"
+        "name": "Memory (peak)"
       },
       "memory_limit": {
-        "name": "Memory limit"
+        "name": "Memory (limit)"
       },
       "memory_headroom": {
-        "name": "Memory headroom"
+        "name": "Memory (headroom)"
       },
       "host_available_memory": {
-        "name": "Available host memory"
+        "name": "Memory (available on host)"
       },
       "kv_cache_memory": {
-        "name": "KV cache memory"
+        "name": "Cache (KV memory)"
       },
       "kv_cache_active_memory": {
-        "name": "Active KV cache memory"
+        "name": "Cache (active KV memory)"
       },
       "kv_cache_active_pages": {
-        "name": "Active KV cache pages"
+        "name": "Cache (active KV pages)"
       },
       "disk_cache_used": {
-        "name": "Disk cache used"
+        "name": "Disk (cache used)"
       },
       "disk_cache_limit": {
-        "name": "Disk cache limit"
+        "name": "Disk (cache limit)"
       },
       "disk_volume_available": {
-        "name": "Available disk space"
+        "name": "Disk (available space)"
       },
       "cache_hits": {
-        "name": "Cache hits"
+        "name": "Cache (hits)"
       },
       "cache_cold_misses": {
-        "name": "Cache cold misses"
+        "name": "Cache (cold misses)"
       },
       "cache_hit_rate": {
-        "name": "Cache hit rate"
+        "name": "Cache (hit rate)"
       },
       "cache_reused_tokens": {
-        "name": "Cache reused tokens"
+        "name": "Cache (reused tokens)"
       },
       "prefill_tokens": {
-        "name": "Prefill tokens"
+        "name": "Token count (prefill)"
       },
       "decode_tokens": {
-        "name": "Decode tokens"
+        "name": "Token count (decode)"
       },
       "prefill_speed": {
-        "name": "Prefill speed"
+        "name": "Tokens per second (prefill)"
       },
       "decode_speed": {
-        "name": "Decode speed"
+        "name": "Tokens per second (decode)"
       },
       "last_prefill_speed": {
-        "name": "Last prefill batch speed"
+        "name": "Tokens per second (last prefill batch)"
       },
       "last_decode_speed": {
-        "name": "Last decode batch speed"
+        "name": "Tokens per second (last decode batch)"
       },
       "draft_acceptance_rate": {
         "name": "Draft acceptance rate"
       },
       "ttft_p50": {
-        "name": "Time to first token (p50)"
+        "name": "Latency (time to first token, p50)"
       },
       "ttft_p95": {
-        "name": "Time to first token (p95)"
+        "name": "Latency (time to first token, p95)"
       },
       "itl_p50": {
-        "name": "Inter-token latency (p50)"
+        "name": "Latency (inter-token, p50)"
       },
       "itl_p95": {
-        "name": "Inter-token latency (p95)"
+        "name": "Latency (inter-token, p95)"
       },
       "active_http_connections": {
         "name": "Active HTTP connections"
@@ -226,40 +226,40 @@
         "name": "Status schema version"
       },
       "loaded_models": {
-        "name": "Loaded model count"
+        "name": "Models (loaded count)"
       },
       "loaded_model_names": {
-        "name": "Loaded models"
+        "name": "Models (loaded)"
       },
       "loaded_context": {
-        "name": "Largest loaded context"
+        "name": "Context tokens (largest loaded context)"
       },
       "loaded_model_memory": {
-        "name": "Loaded model memory"
+        "name": "Memory (loaded models)"
       },
       "loaded_model_vram": {
-        "name": "Loaded model GPU memory"
+        "name": "Memory (loaded models on GPU)"
       },
       "loaded_instances": {
-        "name": "Loaded model instances"
+        "name": "Models (loaded instances)"
       },
       "parallel_capacity": {
-        "name": "Configured parallel prediction capacity"
+        "name": "Models (parallel prediction capacity)"
       },
       "served_models": {
-        "name": "Served models"
+        "name": "Models (served)"
       },
       "kv_cache_usage": {
-        "name": "Peak KV cache usage across engines"
+        "name": "Cache (peak KV usage across engines)"
       },
       "prefix_cache_hit_rate": {
-        "name": "Prefix cache hit rate"
+        "name": "Cache (prefix hit rate)"
       },
       "ttft_average": {
-        "name": "Average time to first token"
+        "name": "Latency (time to first token, average)"
       },
       "preemptions": {
-        "name": "Request preemptions"
+        "name": "Requests (preemptions)"
       }
     },
     "binary_sensor": {
@@ -273,7 +273,7 @@
         "name": "Status stale"
       },
       "draining": {
-        "name": "Draining"
+        "name": "Requests (draining)"
       }
     }
   }
