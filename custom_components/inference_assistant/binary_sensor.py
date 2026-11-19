@@ -2,6 +2,7 @@
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -57,6 +58,9 @@ class InferenceBinarySensor(
         super().__init__(entry.runtime_data)
         self._path = path
         self._attr_translation_key = key
+        self._attr_entity_category = (
+            None if key == "ready" else EntityCategory.DIAGNOSTIC
+        )
         self._attr_device_info = self.coordinator.device_info
         self._attr_unique_id = f"{entry.entry_id}_{key}"
 
