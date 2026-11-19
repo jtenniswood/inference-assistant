@@ -7,6 +7,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import status_value
+from .backends import ServerType
 from .coordinator import SplashConfigEntry, SplashCoordinator
 
 BINARY_SENSORS = {
@@ -32,9 +33,14 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create the binary sensors for one server."""
-    async_add_entities(
-        SplashBinarySensor(entry, key, path) for key, path in BINARY_SENSORS.items()
-    )
+    if entry.runtime_data.server_type is ServerType.SPLASH:
+        async_add_entities(
+            SplashBinarySensor(entry, key, path) for key, path in BINARY_SENSORS.items()
+        )
+    else:
+        async_add_entities(
+            [SplashBinarySensor(entry, "ready", BINARY_SENSORS["ready"])]
+        )
 
 
 class SplashBinarySensor(CoordinatorEntity[SplashCoordinator], BinarySensorEntity):

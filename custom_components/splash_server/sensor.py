@@ -1,6 +1,6 @@
 """Numeric and text statistics from a SPLASH server."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from math import isfinite
 
 from homeassistant.components.sensor import (
@@ -16,6 +16,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import status_value
+from .backends import ServerType
 from .coordinator import SplashConfigEntry, SplashCoordinator
 
 _PRIMARY_SENSORS = frozenset(
@@ -207,13 +208,101 @@ SENSORS = (
 )
 
 
+def backend_metric(
+    key: str, *, diagnostic: bool = False, **kwargs
+) -> SplashSensorDescription:
+    """Describe a sensor sourced from a normalized backend status field."""
+    return replace(
+        metric(key, key, **kwargs),
+        entity_category=EntityCategory.DIAGNOSTIC if diagnostic else None,
+    )
+
+
+_LOADED_MODELS = (
+    backend_metric("loaded_models", state_class=SensorStateClass.MEASUREMENT),
+    backend_metric(
+        "loaded_model_names",
+    ),
+    backend_metric("loaded_context", native_unit_of_measurement="tokens"),
+)
+_REQUEST_ACTIVITY = (
+    backend_metric("active_requests", state_class=SensorStateClass.MEASUREMENT),
+    backend_metric("queued_requests", state_class=SensorStateClass.MEASUREMENT),
+)
+_TOKEN_TOTALS = (
+    backend_metric(
+        "prefill_tokens",
+        native_unit_of_measurement="tokens",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        diagnostic=True,
+    ),
+    backend_metric(
+        "decode_tokens",
+        native_unit_of_measurement="tokens",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        diagnostic=True,
+    ),
+)
+
+OTHER_SENSORS = {
+    ServerType.OLLAMA: (
+        *_LOADED_MODELS,
+        backend_metric("loaded_model_memory", **DATA_SIZE),
+        backend_metric("loaded_model_vram", **DATA_SIZE),
+    ),
+    ServerType.LM_STUDIO: (
+        *_LOADED_MODELS,
+        backend_metric("loaded_instances", state_class=SensorStateClass.MEASUREMENT),
+        backend_metric(
+            "parallel_capacity",
+            state_class=SensorStateClass.MEASUREMENT,
+            diagnostic=True,
+        ),
+    ),
+    ServerType.LLAMA_CPP: (
+        *_REQUEST_ACTIVITY,
+        backend_metric("prefill_speed", **SPEED),
+        backend_metric("decode_speed", **SPEED),
+        *_TOKEN_TOTALS,
+    ),
+    ServerType.VLLM: (
+        *_REQUEST_ACTIVITY,
+        backend_metric(
+            "served_models",
+        ),
+        backend_metric("kv_cache_usage", **RATE),
+        backend_metric("prefix_cache_hit_rate", **RATE),
+        backend_metric(
+            "ttft_average",
+            device_class=SensorDeviceClass.DURATION,
+            native_unit_of_measurement=UnitOfTime.SECONDS,
+            suggested_unit_of_measurement=UnitOfTime.MILLISECONDS,
+            suggested_display_precision=1,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        *_TOKEN_TOTALS,
+        backend_metric(
+            "preemptions",
+            state_class=SensorStateClass.TOTAL_INCREASING,
+            diagnostic=True,
+        ),
+    ),
+}
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: SplashConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create the sensors for one server."""
-    async_add_entities(SplashSensor(entry, description) for description in SENSORS)
+    server_type = entry.runtime_data.server_type
+    descriptions = (
+        SENSORS if server_type is ServerType.SPLASH else OTHER_SENSORS[server_type]
+    )
+    if server_type is ServerType.LLAMA_CPP and entry.runtime_data.model:
+        descriptions = (*descriptions, backend_metric("served_models"))
+    async_add_entities(SplashSensor(entry, description) for description in descriptions)
 
 
 class SplashSensor(CoordinatorEntity[SplashCoordinator], SensorEntity):
