@@ -1,0 +1,186 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a SPLASH server",
+        "data": {
+          "name": "Server name",
+          "url": "Server address",
+          "scan_interval": "Update interval (seconds)"
+        },
+        "data_description": {
+          "url": "Enter an IP address, a hostname, or the full status URL. An address without a scheme or port uses HTTP on port 8000.",
+          "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds."
+        }
+      },
+      "reconfigure": {
+        "title": "Edit SPLASH server settings",
+        "data": {
+          "name": "Server name",
+          "url": "Server address",
+          "scan_interval": "Update interval (seconds)"
+        },
+        "data_description": {
+          "url": "Enter an IP address, a hostname, or the full status URL. An address without a scheme or port uses HTTP on port 8000.",
+          "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds."
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Enter a valid HTTP or HTTPS server address.",
+      "cannot_connect": "Could not connect to the status endpoint. Check that Home Assistant can reach the server.",
+      "invalid_status": "The endpoint did not return valid SPLASH status data.",
+      "already_configured": "This server address is already configured."
+    },
+    "abort": {
+      "reconfigure_successful": "Server settings updated."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_requests": {
+        "name": "Active requests"
+      },
+      "queued_requests": {
+        "name": "Queued requests"
+      },
+      "waiting_requests": {
+        "name": "Waiting requests"
+      },
+      "prefilling_requests": {
+        "name": "Prefilling requests"
+      },
+      "decoding_requests": {
+        "name": "Decoding requests"
+      },
+      "submitted_requests": {
+        "name": "Submitted requests"
+      },
+      "completed_requests": {
+        "name": "Completed requests"
+      },
+      "cancelled_requests": {
+        "name": "Cancelled requests"
+      },
+      "failed_requests": {
+        "name": "Failed requests"
+      },
+      "model": {
+        "name": "Model"
+      },
+      "maximum_context_tokens": {
+        "name": "Maximum context tokens"
+      },
+      "memory_pressure": {
+        "name": "Memory pressure"
+      },
+      "thermal_state": {
+        "name": "Thermal state"
+      },
+      "memory_current": {
+        "name": "Current memory"
+      },
+      "memory_allocated": {
+        "name": "Allocated memory"
+      },
+      "memory_peak": {
+        "name": "Peak memory"
+      },
+      "memory_limit": {
+        "name": "Memory limit"
+      },
+      "memory_headroom": {
+        "name": "Memory headroom"
+      },
+      "host_available_memory": {
+        "name": "Available host memory"
+      },
+      "kv_cache_memory": {
+        "name": "KV cache memory"
+      },
+      "kv_cache_active_memory": {
+        "name": "Active KV cache memory"
+      },
+      "kv_cache_active_pages": {
+        "name": "Active KV cache pages"
+      },
+      "disk_cache_used": {
+        "name": "Disk cache used"
+      },
+      "disk_cache_limit": {
+        "name": "Disk cache limit"
+      },
+      "disk_volume_available": {
+        "name": "Available disk space"
+      },
+      "cache_hits": {
+        "name": "Cache hits"
+      },
+      "cache_cold_misses": {
+        "name": "Cache cold misses"
+      },
+      "cache_hit_rate": {
+        "name": "Cache hit rate"
+      },
+      "cache_reused_tokens": {
+        "name": "Cache reused tokens"
+      },
+      "prefill_tokens": {
+        "name": "Prefill tokens"
+      },
+      "decode_tokens": {
+        "name": "Decode tokens"
+      },
+      "prefill_speed": {
+        "name": "Prefill speed"
+      },
+      "decode_speed": {
+        "name": "Decode speed"
+      },
+      "last_prefill_speed": {
+        "name": "Last prefill batch speed"
+      },
+      "last_decode_speed": {
+        "name": "Last decode batch speed"
+      },
+      "draft_acceptance_rate": {
+        "name": "Draft acceptance rate"
+      },
+      "ttft_p50": {
+        "name": "Time to first token (p50)"
+      },
+      "ttft_p95": {
+        "name": "Time to first token (p95)"
+      },
+      "itl_p50": {
+        "name": "Inter-token latency (p50)"
+      },
+      "itl_p95": {
+        "name": "Inter-token latency (p95)"
+      },
+      "active_http_connections": {
+        "name": "Active HTTP connections"
+      },
+      "transport_restarts": {
+        "name": "Transport restarts"
+      },
+      "schema_version": {
+        "name": "Status schema version"
+      }
+    },
+    "binary_sensor": {
+      "ready": {
+        "name": "Ready"
+      },
+      "metal_healthy": {
+        "name": "Metal healthy"
+      },
+      "status_stale": {
+        "name": "Status stale"
+      },
+      "draining": {
+        "name": "Draining"
+      }
+    }
+  }
+}
