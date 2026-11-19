@@ -1,5 +1,7 @@
 # Inference Assistant for Home Assistant
 
+<img src="https://raw.githubusercontent.com/jtenniswood/inference-assistant/main/custom_components/inference_assistant/brand/icon.png" width="80" height="80" alt="Inference Assistant icon">
+
 Monitor SPLASH, Ollama, LM Studio, llama.cpp, and vLLM from Home Assistant. Each server appears as its own device with sensors for the stats its API provides.
 
 ## Install with HACS
@@ -75,3 +77,5 @@ The device's **Sensors** section shows readiness, the loaded model, active and q
 The **Diagnostic** section contains the remaining entities, including request totals, storage, detailed latency, and server health indicators. The entities keep their existing IDs and history.
 
 All entities for a server share one request per polling cycle. If a field is absent, its sensor shows **Unknown**. If polling fails, the server's entities show **Unavailable** until a successful refresh.
+
+The integration icon uses a modified [Material Design Infinity icon](https://pictogrammers.com/library/mdi/icon/infinity/) by Pictogrammers, licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
