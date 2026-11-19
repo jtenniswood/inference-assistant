@@ -120,7 +120,7 @@ class InferenceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Let the user select an unconfigured result from the scan."""
         assert self._scan is not None
         servers = {
-            endpoint: f"SPLASH ({URL(endpoint).host})"
+            endpoint: f"Splash ({URL(endpoint).host})"
             for endpoint, status in self._scan.result().items()
             if not self._is_configured(ServerType.SPLASH, endpoint, status)
         }

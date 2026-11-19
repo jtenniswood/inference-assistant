@@ -42,29 +42,29 @@
         }
       },
       "splash_setup": {
-        "title": "Add a SPLASH server",
+        "title": "Add a Splash server",
         "menu_options": {
           "discover": "Discover on local network",
           "manual": "Enter server address manually"
         }
       },
       "select_server": {
-        "title": "Select a SPLASH server",
+        "title": "Select a Splash server",
         "data": {
           "url": "Server"
         }
       },
       "no_servers": {
-        "title": "No new SPLASH servers found",
-        "description": "Check that SPLASH is sharing its network and listening on port 8000, or enter its address manually.",
+        "title": "No new Splash servers found",
+        "description": "Check that Splash is sharing its network and listening on port 8000, or enter its address manually.",
         "menu_options": {
           "discover": "Search again",
           "manual": "Enter server address manually"
         }
       },
       "confirm": {
-        "title": "Set up the discovered SPLASH server",
-        "description": "Home Assistant found a SPLASH server at {url}.",
+        "title": "Set up the discovered Splash server",
+        "description": "Home Assistant found a Splash server at {url}.",
         "data": {
           "name": "Server name",
           "scan_interval": "Update interval (seconds)"
@@ -87,11 +87,11 @@
       "reconfigure_successful": "Server settings updated.",
       "already_configured": "This server is already configured.",
       "already_in_progress": "Setup for this server is already in progress.",
-      "invalid_status": "The advertised endpoint did not return valid SPLASH status data."
+      "invalid_status": "The advertised endpoint did not return valid Splash status data."
     },
     "flow_title": "{name}",
     "progress": {
-      "discover": "Looking for SPLASH servers on the local network…"
+      "discover": "Looking for Splash servers on the local network…"
     }
   },
   "entity": {
