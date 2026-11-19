@@ -78,4 +78,8 @@ The **Diagnostic** section contains the remaining entities, including request to
 
 All entities for a server share one request per polling cycle. If a field is absent, its sensor shows **Unknown**. If polling fails, the server's entities show **Unavailable** until a successful refresh.
 
+## License
+
+Inference Assistant is licensed under [Apache 2.0](LICENSE).
+
 The integration icon uses a modified [Material Design Infinity icon](https://pictogrammers.com/library/mdi/icon/infinity/) by Pictogrammers, licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
