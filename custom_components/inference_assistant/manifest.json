@@ -1,4 +1,7 @@
 {
+  "domain": "inference_assistant",
+  "name": "Inference Assistant",
+  "categories": ["ai_voice.ai_models"],
   "codeowners": [
     "@jtenniswood"
   ],
@@ -7,11 +10,9 @@
     "network"
   ],
   "documentation": "https://github.com/jtenniswood/inference-assistant",
-  "domain": "inference_assistant",
   "integration_type": "service",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/jtenniswood/inference-assistant/issues",
-  "name": "Inference Assistant",
   "requirements": [
     "prometheus-client>=0.21,<1"
   ],
