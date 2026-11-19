@@ -2,81 +2,98 @@
 
 <img src="https://raw.githubusercontent.com/jtenniswood/inference-assistant/main/custom_components/inference_assistant/brand/icon.png" width="80" height="80" alt="Inference Assistant icon">
 
-Monitor Splash, Ollama, LM Studio, llama.cpp, and vLLM from Home Assistant. Each server appears as its own device with sensors for the stats its API provides.
+Monitor your local AI inference servers in Home Assistant. Add as many servers as you need, mix server types, and set a polling interval for each one. Every server appears as its own device, with sensors you can use in dashboards and automations. Polling reads the server's metrics and status APIs without sending prompts or loading models.
 
-## Install with HACS
+<!-- ha-marketplace:exclude-start -->
+## Install and update
 
-[![Open Inference Assistant in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jtenniswood&repository=inference-assistant&category=integration)
+Inference Assistant requires Home Assistant **2025.10.0 or later**. Add it as a custom repository using the button below, then install the latest stable release.
 
-Open the repository with the button above, select **Download** in HACS, and restart Home Assistant.
+[![Open Inference Assistant in Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jtenniswood&repository=inference-assistant&category=integration)
 
-To add the repository manually in HACS:
+### Install with Home Assistant Marketplace (2026.11 and later)
 
-1. In HACS, open **Custom repositories** from the top-right menu.
-2. Add `https://github.com/jtenniswood/inference-assistant` as an **Integration**, then download **Inference Assistant**.
-3. Restart Home Assistant.
+1. Open **Settings → Marketplace** and choose **Add from link**.
+2. Connect GitHub if prompted, then enter `jtenniswood/inference-assistant`. If asked for the type, choose **Integration**.
+3. Open **Inference Assistant** and choose **Install**.
 
-For a manual or feature-branch install, copy `custom_components/inference_assistant` into your Home Assistant configuration directory's `custom_components` folder and restart Home Assistant.
+New releases appear in **Settings → Updates**. Restart Home Assistant when prompted after installing or updating. [Home Assistant Marketplace documentation](https://www.home-assistant.io/integrations/marketplace/#custom-repositories)
 
-## Upgrading from the former Splash integration
+### Install with HACS
 
-Inference Assistant has a new Home Assistant integration ID. If you installed an earlier build, make a Home Assistant backup and note each server's name, address, and update interval. Remove the previous integration from **Settings → Devices & services**, then remove the old download in HACS. For a manual install, remove the old `custom_components/splash_server` folder.
+On Home Assistant versions that use standalone HACS, open **HACS → ⋮ → Custom repositories**. Add `https://github.com/jtenniswood/inference-assistant` as an **Integration**, then open Inference Assistant and choose **Download**. Restart Home Assistant after downloading or updating. [HACS custom repository documentation](https://www.hacs.xyz/docs/faq/custom_repositories/)
 
-Install Inference Assistant and add your servers again. Check any dashboards and automations that refer to the old entities.
+### Install manually
+
+Download the source archive from the [latest release](https://github.com/jtenniswood/inference-assistant/releases/latest), or use your feature branch for testing. Copy `custom_components/inference_assistant` into the `custom_components` folder in your Home Assistant configuration directory. Restart Home Assistant.
+<!-- ha-marketplace:exclude-end -->
+
+## Supported servers
+
+All five server types report readiness. Other sensors depend on what the server exposes.
+
+| Server | Default port | Endpoints read | Metrics |
+| --- | ---: | --- | --- |
+| Splash | 8000 | `/status` | Model, requests, memory and thermal state, cache, throughput, and latency |
+| Ollama | 11434 | `/api/ps` | Loaded model names and count, largest loaded context, and model memory including GPU memory |
+| LM Studio | 1234 | `/api/v1/models` | Loaded models and instances, largest loaded context, and configured parallel prediction capacity |
+| llama.cpp | 8080 | `/health`, `/metrics` | Active and queued requests, prompt and generation throughput, and token totals |
+| vLLM | 8000 | `/health`, `/metrics` | Active and queued requests, served models, peak KV cache usage across engines, prefix cache hit rate, average time to first token, token totals, and request preemptions |
 
 ## Add or edit a server
 
-Go to **Settings → Devices & services → Add Integration** and search for **Inference Assistant**. Select the server type.
+1. Open **Settings → Devices & services → Add integration** and search for **Inference Assistant**.
+2. Choose the server type. Splash also offers [local network discovery](#discover-splash-servers).
+3. Enter a **Server name**, **Server address**, and **Update interval**. Polling defaults to **30 seconds** and accepts **10 to 3600 seconds**.
+4. Add other servers by repeating these steps.
 
-For Splash, choose **Discover on local network** to find servers listening on port 8000. Select a result, give it a name, and choose an update interval. In the Splash desktop app, set **Listen on** to **All Networks**. For the CLI, start the server with `--host 0.0.0.0`.
+Enter a bare hostname or IP to use HTTP on the default port from the table. To use a different port, enter a host and port such as `192.168.1.50:8001`, or a full URL such as `http://192.168.1.50:8001/status`. A full URL without a port uses port 80 for HTTP or 443 for HTTPS. If Home Assistant runs on a separate machine, use an address reachable from Home Assistant, such as the server's LAN or VPN address.
 
-The search checks the nearby private IPv4 addresses on Home Assistant's enabled network interfaces. On networks larger than a /24, it checks the /24 containing the interface's address. For a server on a different network, including Tailscale, or one using a different port, select **Enter server address manually**.
+For **Ollama**, **LM Studio**, **llama.cpp**, and **vLLM**, enter a bearer token in **API key** if your monitoring endpoints require one. For **Splash**, `/status` must be reachable without a key.
 
-Enter the following details for manual setup.
+- **LM Studio** needs the local server running and the v1 REST API available.
+- **llama.cpp** needs to be started with `--metrics`. For router mode, enter the exact model ID of a loaded model in **Router model ID**. Use a separate entry for each model you want to monitor. Leave the field blank for a standalone server.
+- **vLLM** needs both health and metrics endpoints available on the same server address.
 
-- **Server name** for the Home Assistant device.
-- **Server address** as an IP, hostname, or full status URL. A bare address uses HTTP on the selected server type's default port, and you can also enter an explicit port or paste a URL such as `http://192.168.1.50:8000/status`.
-- **Update interval** from 10 to 3600 seconds. The default is 30 seconds.
+Use **Reconfigure** in the server entry's menu to change its name, address, polling interval, or supported API key settings. Leave the API key field blank to keep the saved key, or select **Remove the saved API key** to clear it. Reconfiguring an entry preserves its device and entity IDs.
 
-Home Assistant itself must be able to reach the address. For a Tailscale address, make sure your Home Assistant host has a route to the server over Tailscale.
+## Discover Splash servers
 
-To add another server, select **Add Integration** again. To change an existing server's name, address, port, or update interval, use **Reconfigure** from that server entry's menu. The device and its entities keep their existing IDs and history.
+In the Splash desktop app, set **Listen on** to **All Networks**. For the CLI, start Splash with `--host 0.0.0.0` to allow Home Assistant to connect.
 
-### Automatic discovery with Bonjour
-
-Home Assistant also shows Splash servers under **Discovered** when they advertise a `_splash._tcp` Bonjour service. To publish the announcement from macOS, run the following on the Mac hosting Splash, using your server's port and a name of your choice. Keep the command running while you want the announcement to be visible.
+- **Discover on local network** checks port 8000 on nearby private IPv4 addresses from Home Assistant's enabled network interfaces. On networks larger than a /24, it checks the /24 containing the interface's own address. Select a result, then set its name and update interval.
+- **Bonjour** announcements appear under **Discovered** in Home Assistant, including when the server uses a custom port. To publish one from the Mac hosting Splash, run the command below and leave it running while you want the announcement to be visible. Substitute your own name and port.
 
 ```sh
 dns-sd -R "My Splash Server" _splash._tcp local 8000
 ```
 
-## Other LLM servers
+Use **Enter server address manually** for a known address that the network scan cannot reach, such as a server across Tailscale.
 
-When adding the integration, choose the server type. Each server gets its own Home Assistant device and polling interval, and you can mix server types in one Home Assistant instance.
+## Sensors and diagnostics
 
-| Server type | Default port | What Home Assistant can monitor |
-| --- | --- | --- |
-| Splash | 8000 | Readiness, requests, memory, cache, throughput, and latency |
-| Ollama | 11434 | Loaded models, configured context, and model memory including GPU memory |
-| LM Studio | 1234 | Loaded models and instances, configured context, and parallel prediction capacity |
-| llama.cpp | 8080 | Readiness, active and queued requests, throughput, and token totals |
-| vLLM | 8000 | Readiness, active and queued requests, served models, KV and prefix cache metrics, average time to first token, and token totals |
+In **Settings → Devices & services → Inference Assistant**, open a server's device page. The **Sensors** section shows the everyday metrics available for its server type. **Diagnostic** holds additional metrics such as token or request totals, storage details, and health indicators where available.
 
-Use the server's LAN or VPN address if Home Assistant runs on a separate device. The default port applies when you enter a bare address. If you enter a full URL, include the server port when it differs from the usual HTTP or HTTPS port.
+- **Ready** means Splash reports readiness, Ollama or LM Studio answered its models endpoint, or llama.cpp or vLLM reported healthy. Ollama and LM Studio can be ready with zero loaded models.
+- **Unknown** means the most recent successful response did not provide a value for that sensor.
+- **Unavailable** means the last poll failed. Sensors resume updating when the server responds successfully.
 
-- For **LM Studio**, start the local server with the v1 REST API available. Enter an API token if authentication is enabled.
-- For **llama.cpp**, start the server with `--metrics`. To monitor a model in router mode, enter its exact model ID in the **Router model ID** field. Home Assistant polls the loaded model without requesting that the router load it.
-- For **vLLM**, use the server that serves `/health` and `/metrics`.
+For llama.cpp and vLLM, a health endpoint returning HTTP 503 turns **Ready** off and leaves the metrics unknown until the server is ready again.
 
-Polling uses read-only endpoints. With Ollama or LM Studio, a loaded model count of zero means the server is reachable and currently has no models loaded. Sensors for optional fields show **Unknown** when the server doesn't report them.
+## Troubleshooting
 
-## Sensors
+- **Could not reach the monitoring endpoint.** Check the address, port, network route, and server listener from the Home Assistant host. For a VPN address, Home Assistant also needs access to that VPN.
+- **The endpoint did not return monitoring data.** Check the selected server type and the endpoint in the table. llama.cpp and vLLM need their server-specific Prometheus metrics.
+- **Splash discovery found no servers.** Confirm the server is listening on the network and on port 8000, or enter its address manually.
+- **The Marketplace icon is missing before installation.** The icon ships with the integration. On Home Assistant 2026.3 or later, Home Assistant can display it after installation. [Home Assistant branding documentation](https://github.com/home-assistant/brands#marketplace-icons)
 
-The device's **Sensors** section shows readiness, the loaded model, active and queued requests, current memory and memory headroom, memory pressure, thermal state, cache hit rate, prefill and decode speed, and median time to first token.
+[Report an issue](https://github.com/jtenniswood/inference-assistant/issues) with your Home Assistant version, server type and version, and the error shown in setup or logs. Remove API keys from anything you share.
 
-The **Diagnostic** section contains the remaining entities, including request totals, storage, detailed latency, and server health indicators. The entities keep their existing IDs and history.
+## Upgrading from the former Splash integration
 
-All entities for a server share one request per polling cycle. If a field is absent, its sensor shows **Unknown**. If polling fails, the server's entities show **Unavailable** until a successful refresh.
+Inference Assistant uses a new integration ID. Back up Home Assistant and note your server names, addresses, and update intervals. Remove the previous integration under **Settings → Devices & services**, then remove the old download in HACS or Marketplace. For a manual installation, remove the old `custom_components/splash_server` folder.
+
+Install Inference Assistant and add your servers again. Check any dashboards and automations that refer to the old entities.
 
 ## License
 
