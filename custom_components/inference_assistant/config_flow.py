@@ -43,7 +43,7 @@ CONFIRM_SCHEMA = vol.Schema(
 FORM_SCHEMA = CONFIRM_SCHEMA.extend({vol.Required(CONF_URL): str})
 
 
-class SplashConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class InferenceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle initial setup and reconfiguration."""
 
     _server_type = ServerType.SPLASH

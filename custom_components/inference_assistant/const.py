@@ -1,6 +1,6 @@
-"""Constants for SPLASH AI LLM Server."""
+"""Constants for Inference Assistant."""
 
-DOMAIN = "splash_server"
+DOMAIN = "inference_assistant"
 CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_PORT = 8000
 DEFAULT_SCAN_INTERVAL = 30

@@ -1,4 +1,4 @@
-"""Poll one SPLASH server for all of its entities."""
+"""Poll one inference server for all of its entities."""
 
 import logging
 from datetime import timedelta
@@ -18,7 +18,7 @@ from .const import CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
-class SplashCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+class InferenceCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Manage periodic updates for one server."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -61,4 +61,4 @@ class SplashCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(str(err)) from err
 
 
-type SplashConfigEntry = ConfigEntry[SplashCoordinator]
+type InferenceConfigEntry = ConfigEntry[InferenceCoordinator]

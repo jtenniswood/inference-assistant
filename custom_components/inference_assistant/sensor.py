@@ -1,4 +1,4 @@
-"""Numeric and text statistics from a SPLASH server."""
+"""Numeric and text statistics for an inference server."""
 
 from dataclasses import dataclass, replace
 from math import isfinite
@@ -17,11 +17,11 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import status_value
 from .backends import ServerType
-from .coordinator import SplashConfigEntry, SplashCoordinator
+from .coordinator import InferenceConfigEntry, InferenceCoordinator
 
 
 @dataclass(frozen=True, kw_only=True)
-class SplashSensorDescription(SensorEntityDescription):
+class InferenceSensorDescription(SensorEntityDescription):
     """Map a sensor to a value in the status document."""
 
     path: tuple[str, ...]
@@ -29,9 +29,9 @@ class SplashSensorDescription(SensorEntityDescription):
     check_batch: bool = False
 
 
-def metric(key: str, path: str, **kwargs) -> SplashSensorDescription:
+def metric(key: str, path: str, **kwargs) -> InferenceSensorDescription:
     """Describe a translated sensor and its status field."""
-    return SplashSensorDescription(
+    return InferenceSensorDescription(
         key=key,
         translation_key=key,
         path=tuple(path.split(".")),
@@ -195,7 +195,7 @@ SENSORS = (
 
 def backend_metric(
     key: str, *, diagnostic: bool = False, **kwargs
-) -> SplashSensorDescription:
+) -> InferenceSensorDescription:
     """Describe a sensor sourced from a normalized backend status field."""
     return replace(
         metric(key, key, **kwargs),
@@ -277,7 +277,7 @@ OTHER_SENSORS = {
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: SplashConfigEntry,
+    entry: InferenceConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create the sensors for one server."""
@@ -287,17 +287,19 @@ async def async_setup_entry(
     )
     if server_type is ServerType.LLAMA_CPP and entry.runtime_data.model:
         descriptions = (*descriptions, backend_metric("served_models"))
-    async_add_entities(SplashSensor(entry, description) for description in descriptions)
+    async_add_entities(
+        InferenceSensor(entry, description) for description in descriptions
+    )
 
 
-class SplashSensor(CoordinatorEntity[SplashCoordinator], SensorEntity):
+class InferenceSensor(CoordinatorEntity[InferenceCoordinator], SensorEntity):
     """A statistic updated by the shared status poll."""
 
     _attr_has_entity_name = True
-    entity_description: SplashSensorDescription
+    entity_description: InferenceSensorDescription
 
     def __init__(
-        self, entry: SplashConfigEntry, description: SplashSensorDescription
+        self, entry: InferenceConfigEntry, description: InferenceSensorDescription
     ) -> None:
         """Assign an identity that survives address or name changes."""
         super().__init__(entry.runtime_data)

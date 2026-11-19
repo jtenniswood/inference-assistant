@@ -1,24 +1,30 @@
-# SPLASH AI LLM Server for Home Assistant
+# Inference Assistant for Home Assistant
 
 Monitor SPLASH, Ollama, LM Studio, llama.cpp, and vLLM from Home Assistant. Each server appears as its own device with sensors for the stats its API provides.
 
 ## Install with HACS
 
-[![Open SPLASH AI LLM Server in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jtenniswood&repository=splash-hacs&category=integration)
+[![Open Inference Assistant in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jtenniswood&repository=inference-assistant&category=integration)
 
 Open the repository with the button above, select **Download** in HACS, and restart Home Assistant.
 
 To add the repository manually in HACS:
 
 1. In HACS, open **Custom repositories** from the top-right menu.
-2. Add `https://github.com/jtenniswood/splash-hacs` as an **Integration**, then download **SPLASH AI LLM Server**.
+2. Add `https://github.com/jtenniswood/inference-assistant` as an **Integration**, then download **Inference Assistant**.
 3. Restart Home Assistant.
 
-For a manual or feature-branch install, copy `custom_components/splash_server` into your Home Assistant configuration directory's `custom_components` folder and restart Home Assistant.
+For a manual or feature-branch install, copy `custom_components/inference_assistant` into your Home Assistant configuration directory's `custom_components` folder and restart Home Assistant.
+
+## Upgrading from the former SPLASH integration
+
+Inference Assistant has a new Home Assistant integration ID. If you installed an earlier build, make a Home Assistant backup and note each server's name, address, and update interval. Remove the previous integration from **Settings → Devices & services**, then remove the old download in HACS. For a manual install, remove the old `custom_components/splash_server` folder.
+
+Install Inference Assistant and add your servers again. Check any dashboards and automations that refer to the old entities.
 
 ## Add or edit a server
 
-Go to **Settings → Devices & services → Add Integration** and search for **SPLASH AI LLM Server**. Select the server type.
+Go to **Settings → Devices & services → Add Integration** and search for **Inference Assistant**. Select the server type.
 
 For SPLASH, choose **Discover on local network** to find servers listening on port 8000. Select a result, give it a name, and choose an update interval. In the SPLASH desktop app, set **Listen on** to **All Networks**. For the CLI, start the server with `--host 0.0.0.0`.
 
