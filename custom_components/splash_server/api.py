@@ -20,7 +20,12 @@ class CannotConnectError(Exception):
 
 
 def status_url(address: str) -> str:
-    """Normalize a server address to its status endpoint."""
+    """Normalize a SPLASH server address to its status endpoint."""
+    return monitoring_url(address, path="/status", default_port=DEFAULT_PORT)
+
+
+def monitoring_url(address: str, *, path: str, default_port: int) -> str:
+    """Normalize a server address to its monitoring endpoint."""
     address = address.strip()
     if not address or any(char.isspace() for char in address):
         raise ValueError("Enter an IP address, hostname, or HTTP(S) URL")
@@ -30,17 +35,17 @@ def status_url(address: str) -> str:
         url.scheme not in {"http", "https"}
         or not url.host
         or url.user is not None
-        or url.path not in {"", "/", "/status", "/status/"}
+        or url.path not in {"", "/", path, f"{path}/"}
         or url.query_string
         or url.fragment
     ):
         raise ValueError("Enter an IP address, hostname, or HTTP(S) status URL")
 
     # With an explicit scheme, honor HTTP/HTTPS defaults if no port was given.
-    port = DEFAULT_PORT if not has_scheme and url.explicit_port is None else url.port
+    port = default_port if not has_scheme and url.explicit_port is None else url.port
     if not port:
         raise ValueError("Port must be between 1 and 65535")
-    return str(url.with_port(port).with_path("/status"))
+    return str(url.with_port(port).with_path(path))
 
 
 async def async_get_status(

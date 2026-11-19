@@ -1,4 +1,4 @@
-"""Discover, configure, and reconfigure a SPLASH server."""
+"""Configure an LLM server and edit its settings later."""
 
 from asyncio import Task
 from ipaddress import IPv4Address
@@ -6,13 +6,22 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_NAME, CONF_URL
+from homeassistant.const import CONF_API_KEY, CONF_MODEL, CONF_NAME, CONF_URL
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from yarl import URL
 
-from .api import CannotConnectError, InvalidStatusError, async_get_status, status_url
+from .api import CannotConnectError, InvalidStatusError, monitoring_url
+from .backends import (
+    BACKENDS,
+    CONF_CLEAR_API_KEY,
+    CONF_SERVER_TYPE,
+    AuthenticationError,
+    MetricsUnavailableError,
+    ServerType,
+    async_fetch_status,
+)
 from .const import (
     CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
@@ -30,12 +39,14 @@ CONFIRM_SCHEMA = vol.Schema(
         ),
     }
 )
+
 FORM_SCHEMA = CONFIRM_SCHEMA.extend({vol.Required(CONF_URL): str})
 
 
 class SplashConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle discovery, initial setup, and reconfiguration."""
+    """Handle initial setup and reconfiguration."""
 
+    _server_type = ServerType.SPLASH
     _scan: Task[dict[str, dict[str, Any]]] | None = None
     _discovered_url: str
     _discovered_name: str
@@ -43,14 +54,51 @@ class SplashConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Choose how to find a server."""
-        return self.async_show_menu(step_id="user", menu_options=["discover", "manual"])
+        """Choose which server to add."""
+        if user_input is not None:
+            self._server_type = ServerType(user_input[CONF_SERVER_TYPE])
+            if self._server_type is ServerType.SPLASH:
+                return await self.async_step_splash_setup()
+            return await self.async_step_server()
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_SERVER_TYPE, default=ServerType.SPLASH.value): (
+                        selector.SelectSelector(
+                            selector.SelectSelectorConfig(
+                                options=[
+                                    {"value": server_type.value, "label": backend.name}
+                                    for server_type, backend in BACKENDS.items()
+                                ],
+                                mode=selector.SelectSelectorMode.DROPDOWN,
+                            )
+                        )
+                    )
+                }
+            ),
+        )
+
+    async def async_step_splash_setup(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Offer discovery or manual setup for SPLASH."""
+        return self.async_show_menu(
+            step_id="splash_setup", menu_options=["discover", "manual"]
+        )
+
+    async def async_step_server(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Set up a server of the selected type."""
+        return await self._async_server_form("server", self._server_type, user_input)
 
     async def async_step_manual(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         """Add a server by its known address."""
-        return await self._async_server_form("manual", user_input)
+        return await self.async_step_server(user_input)
 
     async def async_step_discover(
         self, user_input: dict[str, Any] | None = None
@@ -74,7 +122,7 @@ class SplashConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         servers = {
             endpoint: f"SPLASH ({URL(endpoint).host})"
             for endpoint, status in self._scan.result().items()
-            if not self._is_configured(endpoint, status)
+            if not self._is_configured(ServerType.SPLASH, endpoint, status)
         }
         if user_input is not None and (endpoint := user_input[CONF_URL]) in servers:
             self._discovered_url = endpoint
@@ -137,7 +185,7 @@ class SplashConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         else:
             return self.async_abort(reason="invalid_status")
 
-        if self._is_configured(endpoint, status):
+        if self._is_configured(ServerType.SPLASH, endpoint, status):
             return self.async_abort(reason="already_configured")
 
         await self.async_set_unique_id(discovery_info.name.casefold())
@@ -153,25 +201,35 @@ class SplashConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         """Confirm and name a discovered server."""
-        return await self._async_server_form("confirm", user_input)
+        return await self._async_server_form("confirm", ServerType.SPLASH, user_input)
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         """Update the settings of an existing server."""
-        return await self._async_server_form("reconfigure", user_input)
+        entry = self._get_reconfigure_entry()
+        server_type = ServerType(entry.data.get(CONF_SERVER_TYPE, ServerType.SPLASH))
+        return await self._async_server_form(
+            "reconfigure", server_type, user_input, entry
+        )
 
     def _is_configured(
         self,
+        server_type: ServerType,
         endpoint: str,
         status: dict[str, Any],
         *,
+        model: str = "",
         exclude: config_entries.ConfigEntry | None = None,
     ) -> bool:
         """Match an existing URL or an alternate address for the same process."""
         identity = instance_id(status)
         for existing in self._async_current_entries(include_ignore=False):
-            if existing is exclude:
+            if (
+                existing is exclude
+                or existing.data.get(CONF_SERVER_TYPE, ServerType.SPLASH) != server_type
+                or existing.data.get(CONF_MODEL, "") != model
+            ):
                 continue
             if existing.data.get(CONF_URL) == endpoint:
                 return True
@@ -187,55 +245,105 @@ class SplashConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return False
 
     async def _async_server_form(
-        self, step_id: str, user_input: dict[str, Any] | None
+        self,
+        step_id: str,
+        server_type: ServerType,
+        user_input: dict[str, Any] | None,
+        entry: config_entries.ConfigEntry | None = None,
     ) -> config_entries.ConfigFlowResult:
         """Validate settings and save them after a successful request."""
-        entry = self._get_reconfigure_entry() if step_id == "reconfigure" else None
+        backend = BACKENDS[server_type]
         confirming = step_id == "confirm"
+        old_api_key = entry.data.get(CONF_API_KEY, "") if entry is not None else ""
         errors = {}
         if user_input is not None:
+            api_key = user_input.get(CONF_API_KEY, "").strip() or old_api_key
+            if user_input.get(CONF_CLEAR_API_KEY):
+                api_key = ""
+            model = user_input.get(CONF_MODEL, "").strip()
             try:
                 endpoint = (
                     self._discovered_url
                     if confirming
-                    else status_url(user_input[CONF_URL])
+                    else monitoring_url(
+                        user_input[CONF_URL],
+                        path=backend.path,
+                        default_port=backend.port,
+                    )
                 )
-                status = await async_get_status(
-                    async_get_clientsession(self.hass), endpoint
+                status = await async_fetch_status(
+                    async_get_clientsession(self.hass),
+                    server_type,
+                    endpoint,
+                    api_key=api_key,
+                    model=model,
                 )
             except ValueError:
                 errors[CONF_URL] = "invalid_url"
+            except AuthenticationError:
+                errors[CONF_API_KEY] = "invalid_auth"
             except CannotConnectError:
                 errors["base"] = "cannot_connect"
+            except MetricsUnavailableError:
+                errors["base"] = "metrics_unavailable"
             except InvalidStatusError:
                 errors["base"] = "invalid_status"
             else:
-                if self._is_configured(endpoint, status, exclude=entry):
+                if server_type is not ServerType.SPLASH and not status["ready"]:
+                    errors["base"] = "not_ready"
+                elif self._is_configured(
+                    server_type, endpoint, status, model=model, exclude=entry
+                ):
                     errors["base" if confirming else CONF_URL] = "already_configured"
                 else:
                     title = user_input[CONF_NAME]
                     data = {
+                        CONF_SERVER_TYPE: server_type.value,
                         CONF_URL: endpoint,
                         CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL],
                     }
+                    if api_key:
+                        data[CONF_API_KEY] = api_key
+                    if model:
+                        data[CONF_MODEL] = model
                     if entry is not None:
                         return self.async_update_reload_and_abort(
-                            entry, title=title, data_updates=data
+                            entry, title=title, data=data
                         )
                     return self.async_create_entry(title=title, data=data)
 
-        suggestions = {}
-        if entry is not None:
-            suggestions = {**entry.data, CONF_NAME: entry.title}
+        schema = CONFIRM_SCHEMA if confirming else FORM_SCHEMA
+        if server_type is not ServerType.SPLASH:
+            schema = schema.extend(
+                {
+                    vol.Optional(CONF_API_KEY): selector.TextSelector(
+                        selector.TextSelectorConfig(
+                            type=selector.TextSelectorType.PASSWORD
+                        )
+                    )
+                }
+            )
+        if old_api_key:
+            schema = schema.extend(
+                {vol.Optional(CONF_CLEAR_API_KEY): selector.BooleanSelector()}
+            )
+        if server_type is ServerType.LLAMA_CPP:
+            schema = schema.extend({vol.Optional(CONF_MODEL): str})
+
+        suggestions = (
+            {**entry.data, CONF_NAME: entry.title} if entry is not None else {}
+        )
         if confirming:
-            suggestions = {CONF_NAME: self._discovered_name}
+            suggestions[CONF_NAME] = self._discovered_name
+        if user_input:
+            suggestions.update(user_input)
+        suggestions.pop(CONF_API_KEY, None)
+        placeholders = {"backend": backend.name, "port": str(backend.port)}
+        if confirming:
+            placeholders["url"] = self._discovered_url
         return self.async_show_form(
             step_id=step_id,
-            data_schema=self.add_suggested_values_to_schema(
-                CONFIRM_SCHEMA if confirming else FORM_SCHEMA, user_input or suggestions
-            ),
-            description_placeholders={"url": self._discovered_url}
-            if confirming
-            else None,
+            data_schema=self.add_suggested_values_to_schema(schema, suggestions),
+            description_placeholders=placeholders,
             errors=errors,
         )

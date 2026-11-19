@@ -2,22 +2,50 @@
   "config": {
     "step": {
       "user": {
+        "title": "Choose the LLM server type",
+        "data": {
+          "server_type": "Server type"
+        }
+      },
+      "server": {
+        "title": "Add a {backend} server",
+        "data": {
+          "name": "Server name",
+          "url": "Server address",
+          "scan_interval": "Update interval (seconds)",
+          "api_key": "API key",
+          "model": "Router model ID",
+          "clear_api_key": "Remove the saved API key"
+        },
+        "data_description": {
+          "url": "Enter an IP address, hostname, or monitoring URL. A bare address uses HTTP on port {port}.",
+          "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds.",
+          "api_key": "Optional. Leave blank to keep an existing key.",
+          "model": "For a llama.cpp router, enter the exact ID of a loaded model. Leave blank for a standalone server."
+        }
+      },
+      "reconfigure": {
+        "title": "Edit {backend} server settings",
+        "data": {
+          "name": "Server name",
+          "url": "Server address",
+          "scan_interval": "Update interval (seconds)",
+          "api_key": "API key",
+          "model": "Router model ID",
+          "clear_api_key": "Remove the saved API key"
+        },
+        "data_description": {
+          "url": "Enter an IP address, hostname, or monitoring URL. A bare address uses HTTP on port {port}.",
+          "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds.",
+          "api_key": "Optional. Leave blank to keep an existing key.",
+          "model": "For a llama.cpp router, enter the exact ID of a loaded model. Leave blank for a standalone server."
+        }
+      },
+      "splash_setup": {
         "title": "Add a SPLASH server",
         "menu_options": {
           "discover": "Discover on local network",
           "manual": "Enter server address manually"
-        }
-      },
-      "manual": {
-        "title": "Add a SPLASH server",
-        "data": {
-          "name": "Server name",
-          "url": "Server address",
-          "scan_interval": "Update interval (seconds)"
-        },
-        "data_description": {
-          "url": "Enter an IP address, a hostname, or the full status URL. An address without a scheme or port uses HTTP on port 8000.",
-          "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds."
         }
       },
       "select_server": {
@@ -44,25 +72,16 @@
         "data_description": {
           "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds."
         }
-      },
-      "reconfigure": {
-        "title": "Edit SPLASH server settings",
-        "data": {
-          "name": "Server name",
-          "url": "Server address",
-          "scan_interval": "Update interval (seconds)"
-        },
-        "data_description": {
-          "url": "Enter an IP address, a hostname, or the full status URL. An address without a scheme or port uses HTTP on port 8000.",
-          "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds."
-        }
       }
     },
     "error": {
       "invalid_url": "Enter a valid HTTP or HTTPS server address.",
-      "cannot_connect": "Could not connect to the status endpoint. Check that Home Assistant can reach the server.",
-      "invalid_status": "The endpoint did not return valid SPLASH status data.",
-      "already_configured": "This server address is already configured."
+      "cannot_connect": "Could not reach the monitoring endpoint. Check the address and confirm Home Assistant can reach the server.",
+      "invalid_status": "The endpoint did not return monitoring data for this server type.",
+      "already_configured": "This server address is already configured.",
+      "invalid_auth": "Check the server's API key.",
+      "metrics_unavailable": "The metrics endpoint is unavailable. For llama.cpp, start the server with --metrics.",
+      "not_ready": "The server is reachable and still starting. Try again when it is ready."
     },
     "abort": {
       "reconfigure_successful": "Server settings updated.",
@@ -205,6 +224,42 @@
       },
       "schema_version": {
         "name": "Status schema version"
+      },
+      "loaded_models": {
+        "name": "Loaded model count"
+      },
+      "loaded_model_names": {
+        "name": "Loaded models"
+      },
+      "loaded_context": {
+        "name": "Largest loaded context"
+      },
+      "loaded_model_memory": {
+        "name": "Loaded model memory"
+      },
+      "loaded_model_vram": {
+        "name": "Loaded model GPU memory"
+      },
+      "loaded_instances": {
+        "name": "Loaded model instances"
+      },
+      "parallel_capacity": {
+        "name": "Configured parallel prediction capacity"
+      },
+      "served_models": {
+        "name": "Served models"
+      },
+      "kv_cache_usage": {
+        "name": "Peak KV cache usage across engines"
+      },
+      "prefix_cache_hit_rate": {
+        "name": "Prefix cache hit rate"
+      },
+      "ttft_average": {
+        "name": "Average time to first token"
+      },
+      "preemptions": {
+        "name": "Request preemptions"
       }
     },
     "binary_sensor": {

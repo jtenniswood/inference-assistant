@@ -12,6 +12,9 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/jtenniswood/splash-hacs/issues",
   "name": "SPLASH AI LLM Server",
+  "requirements": [
+    "prometheus-client>=0.21,<1"
+  ],
   "version": "0.2.0",
   "zeroconf": [
     "_splash._tcp.local."
