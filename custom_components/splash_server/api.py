@@ -1,11 +1,14 @@
 """Client for the SPLASH server status endpoint."""
 
+import json
 from typing import Any
 
 from aiohttp import ClientError, ClientSession, ClientTimeout
 from yarl import URL
 
 from .const import DEFAULT_PORT, REQUEST_TIMEOUT
+
+_MAX_STATUS_BYTES = 1024 * 1024
 
 
 class InvalidStatusError(Exception):
@@ -40,21 +43,28 @@ def status_url(address: str) -> str:
     return str(url.with_port(port).with_path("/status"))
 
 
-async def async_get_status(session: ClientSession, endpoint: str) -> dict[str, Any]:
+async def async_get_status(
+    session: ClientSession, endpoint: str, *, timeout: float = REQUEST_TIMEOUT
+) -> dict[str, Any]:
     """Fetch and validate the status document."""
     try:
         async with session.get(
             endpoint,
-            timeout=ClientTimeout(total=REQUEST_TIMEOUT),
+            timeout=ClientTimeout(total=timeout),
             allow_redirects=False,
         ) as response:
             if response.status != 200:
                 raise CannotConnectError(
                     f"Status endpoint returned HTTP {response.status}"
                 )
+            body = bytearray()
+            async for chunk in response.content.iter_chunked(16384):
+                body.extend(chunk)
+                if len(body) > _MAX_STATUS_BYTES:
+                    raise InvalidStatusError("Status response is too large")
             try:
-                data = await response.json(content_type=None)
-            except ValueError as err:
+                data = json.loads(body)
+            except (ValueError, RecursionError) as err:
                 raise InvalidStatusError("Status response is not valid JSON") from err
     except (ClientError, TimeoutError) as err:
         raise CannotConnectError("Could not reach the status endpoint") from err

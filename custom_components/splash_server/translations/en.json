@@ -3,6 +3,13 @@
     "step": {
       "user": {
         "title": "Add a SPLASH server",
+        "menu_options": {
+          "discover": "Discover on local network",
+          "manual": "Enter server address manually"
+        }
+      },
+      "manual": {
+        "title": "Add a SPLASH server",
         "data": {
           "name": "Server name",
           "url": "Server address",
@@ -10,6 +17,31 @@
         },
         "data_description": {
           "url": "Enter an IP address, a hostname, or the full status URL. An address without a scheme or port uses HTTP on port 8000.",
+          "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds."
+        }
+      },
+      "select_server": {
+        "title": "Select a SPLASH server",
+        "data": {
+          "url": "Server"
+        }
+      },
+      "no_servers": {
+        "title": "No new SPLASH servers found",
+        "description": "Check that SPLASH is sharing its network and listening on port 8000, or enter its address manually.",
+        "menu_options": {
+          "discover": "Search again",
+          "manual": "Enter server address manually"
+        }
+      },
+      "confirm": {
+        "title": "Set up the discovered SPLASH server",
+        "description": "Home Assistant found a SPLASH server at {url}.",
+        "data": {
+          "name": "Server name",
+          "scan_interval": "Update interval (seconds)"
+        },
+        "data_description": {
           "scan_interval": "How often Home Assistant fetches the server status. Choose 10 to 3600 seconds."
         }
       },
@@ -33,7 +65,14 @@
       "already_configured": "This server address is already configured."
     },
     "abort": {
-      "reconfigure_successful": "Server settings updated."
+      "reconfigure_successful": "Server settings updated.",
+      "already_configured": "This server is already configured.",
+      "already_in_progress": "Setup for this server is already in progress.",
+      "invalid_status": "The advertised endpoint did not return valid SPLASH status data."
+    },
+    "flow_title": "{name}",
+    "progress": {
+      "discover": "Looking for SPLASH servers on the local network…"
     }
   },
   "entity": {
