@@ -6,12 +6,12 @@
   "dependencies": [
     "network"
   ],
-  "documentation": "https://github.com/jtenniswood/splash-hacs",
-  "domain": "splash_server",
+  "documentation": "https://github.com/jtenniswood/inference-assistant",
+  "domain": "inference_assistant",
   "integration_type": "service",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/jtenniswood/splash-hacs/issues",
-  "name": "SPLASH AI LLM Server",
+  "issue_tracker": "https://github.com/jtenniswood/inference-assistant/issues",
+  "name": "Inference Assistant",
   "requirements": [
     "prometheus-client>=0.21,<1"
   ],

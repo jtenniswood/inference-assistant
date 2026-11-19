@@ -1,4 +1,4 @@
-"""Readiness and health indicators from a SPLASH server."""
+"""Readiness and health indicators for an inference server."""
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import HomeAssistant
@@ -8,7 +8,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import status_value
 from .backends import ServerType
-from .coordinator import SplashConfigEntry, SplashCoordinator
+from .coordinator import InferenceConfigEntry, InferenceCoordinator
 
 BINARY_SENSORS = {
     "ready": ("ready",),
@@ -29,27 +29,30 @@ BINARY_SENSORS = {
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: SplashConfigEntry,
+    entry: InferenceConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create the binary sensors for one server."""
     if entry.runtime_data.server_type is ServerType.SPLASH:
         async_add_entities(
-            SplashBinarySensor(entry, key, path) for key, path in BINARY_SENSORS.items()
+            InferenceBinarySensor(entry, key, path)
+            for key, path in BINARY_SENSORS.items()
         )
     else:
         async_add_entities(
-            [SplashBinarySensor(entry, "ready", BINARY_SENSORS["ready"])]
+            [InferenceBinarySensor(entry, "ready", BINARY_SENSORS["ready"])]
         )
 
 
-class SplashBinarySensor(CoordinatorEntity[SplashCoordinator], BinarySensorEntity):
+class InferenceBinarySensor(
+    CoordinatorEntity[InferenceCoordinator], BinarySensorEntity
+):
     """A True/False statistic updated by the shared status poll."""
 
     _attr_has_entity_name = True
 
     def __init__(
-        self, entry: SplashConfigEntry, key: str, path: tuple[str, ...]
+        self, entry: InferenceConfigEntry, key: str, path: tuple[str, ...]
     ) -> None:
         """Assign an identity that survives address or name changes."""
         super().__init__(entry.runtime_data)
