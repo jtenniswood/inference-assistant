@@ -4,6 +4,12 @@ Monitor SPLASH, Ollama, LM Studio, llama.cpp, and vLLM from Home Assistant. Each
 
 ## Install with HACS
 
+[![Open SPLASH AI LLM Server in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jtenniswood&repository=splash-hacs&category=integration)
+
+Open the repository with the button above, select **Download** in HACS, and restart Home Assistant.
+
+To add the repository manually in HACS:
+
 1. In HACS, open **Custom repositories** from the top-right menu.
 2. Add `https://github.com/jtenniswood/splash-hacs` as an **Integration**, then download **SPLASH AI LLM Server**.
 3. Restart Home Assistant.
