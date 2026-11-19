@@ -41,7 +41,7 @@ class Backend:
 
 
 BACKENDS = {
-    ServerType.SPLASH: Backend("SPLASH", DEFAULT_PORT, "/status"),
+    ServerType.SPLASH: Backend("Splash", DEFAULT_PORT, "/status"),
     ServerType.OLLAMA: Backend("Ollama", 11434, "/api/ps"),
     ServerType.LM_STUDIO: Backend("LM Studio", 1234, "/api/v1/models"),
     ServerType.LLAMA_CPP: Backend("llama.cpp", 8080, "/metrics"),

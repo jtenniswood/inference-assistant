@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/jtenniswood/inference-assistant/main/custom_components/inference_assistant/brand/icon.png" width="80" height="80" alt="Inference Assistant icon">
 
-Monitor SPLASH, Ollama, LM Studio, llama.cpp, and vLLM from Home Assistant. Each server appears as its own device with sensors for the stats its API provides.
+Monitor Splash, Ollama, LM Studio, llama.cpp, and vLLM from Home Assistant. Each server appears as its own device with sensors for the stats its API provides.
 
 ## Install with HACS
 
@@ -18,7 +18,7 @@ To add the repository manually in HACS:
 
 For a manual or feature-branch install, copy `custom_components/inference_assistant` into your Home Assistant configuration directory's `custom_components` folder and restart Home Assistant.
 
-## Upgrading from the former SPLASH integration
+## Upgrading from the former Splash integration
 
 Inference Assistant has a new Home Assistant integration ID. If you installed an earlier build, make a Home Assistant backup and note each server's name, address, and update interval. Remove the previous integration from **Settings → Devices & services**, then remove the old download in HACS. For a manual install, remove the old `custom_components/splash_server` folder.
 
@@ -28,7 +28,7 @@ Install Inference Assistant and add your servers again. Check any dashboards and
 
 Go to **Settings → Devices & services → Add Integration** and search for **Inference Assistant**. Select the server type.
 
-For SPLASH, choose **Discover on local network** to find servers listening on port 8000. Select a result, give it a name, and choose an update interval. In the SPLASH desktop app, set **Listen on** to **All Networks**. For the CLI, start the server with `--host 0.0.0.0`.
+For Splash, choose **Discover on local network** to find servers listening on port 8000. Select a result, give it a name, and choose an update interval. In the Splash desktop app, set **Listen on** to **All Networks**. For the CLI, start the server with `--host 0.0.0.0`.
 
 The search checks the nearby private IPv4 addresses on Home Assistant's enabled network interfaces. On networks larger than a /24, it checks the /24 containing the interface's address. For a server on a different network, including Tailscale, or one using a different port, select **Enter server address manually**.
 
@@ -44,10 +44,10 @@ To add another server, select **Add Integration** again. To change an existing s
 
 ### Automatic discovery with Bonjour
 
-Home Assistant also shows SPLASH servers under **Discovered** when they advertise a `_splash._tcp` Bonjour service. To publish the announcement from macOS, run the following on the Mac hosting SPLASH, using your server's port and a name of your choice. Keep the command running while you want the announcement to be visible.
+Home Assistant also shows Splash servers under **Discovered** when they advertise a `_splash._tcp` Bonjour service. To publish the announcement from macOS, run the following on the Mac hosting Splash, using your server's port and a name of your choice. Keep the command running while you want the announcement to be visible.
 
 ```sh
-dns-sd -R "My SPLASH Server" _splash._tcp local 8000
+dns-sd -R "My Splash Server" _splash._tcp local 8000
 ```
 
 ## Other LLM servers
@@ -56,7 +56,7 @@ When adding the integration, choose the server type. Each server gets its own Ho
 
 | Server type | Default port | What Home Assistant can monitor |
 | --- | --- | --- |
-| SPLASH | 8000 | Readiness, requests, memory, cache, throughput, and latency |
+| Splash | 8000 | Readiness, requests, memory, cache, throughput, and latency |
 | Ollama | 11434 | Loaded models, configured context, and model memory including GPU memory |
 | LM Studio | 1234 | Loaded models and instances, configured context, and parallel prediction capacity |
 | llama.cpp | 8080 | Readiness, active and queued requests, throughput, and token totals |
