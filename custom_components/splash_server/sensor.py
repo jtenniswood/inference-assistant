@@ -18,6 +18,22 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .api import status_value
 from .coordinator import SplashConfigEntry, SplashCoordinator
 
+_PRIMARY_SENSORS = frozenset(
+    {
+        "model",
+        "active_requests",
+        "queued_requests",
+        "memory_current",
+        "memory_headroom",
+        "memory_pressure",
+        "thermal_state",
+        "cache_hit_rate",
+        "prefill_speed",
+        "decode_speed",
+        "ttft_p50",
+    }
+)
+
 
 @dataclass(frozen=True, kw_only=True)
 class SplashSensorDescription(SensorEntityDescription):
@@ -33,6 +49,7 @@ def metric(key: str, path: str, **kwargs) -> SplashSensorDescription:
     return SplashSensorDescription(
         key=key,
         translation_key=key,
+        entity_category=None if key in _PRIMARY_SENSORS else EntityCategory.DIAGNOSTIC,
         path=tuple(path.split(".")),
         **kwargs,
     )
@@ -186,9 +203,7 @@ SENSORS = (
         "transport.restarts",
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
-    metric(
-        "schema_version", "schema_version", entity_category=EntityCategory.DIAGNOSTIC
-    ),
+    metric("schema_version", "schema_version"),
 )
 
 

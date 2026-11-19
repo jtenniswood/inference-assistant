@@ -30,4 +30,8 @@ To add another server, select **Add Integration** again. To change an existing s
 
 ## Sensors
 
-The integration reports readiness and health, the loaded model and context limit, request counts and queue activity, memory and disk usage, cache efficiency, token throughput, and latency. All entities for a server share one request per polling cycle. If a field is absent, its sensor shows **Unknown**. If polling fails, the server's entities show **Unavailable** until a successful refresh.
+The device's **Sensors** section shows readiness, the loaded model, active and queued requests, current memory and memory headroom, memory pressure, thermal state, cache hit rate, prefill and decode speed, and median time to first token.
+
+The **Diagnostic** section contains the remaining entities, including request totals, storage, detailed latency, and server health indicators. The entities keep their existing IDs and history.
+
+All entities for a server share one request per polling cycle. If a field is absent, its sensor shows **Unknown**. If polling fails, the server's entities show **Unavailable** until a successful refresh.
